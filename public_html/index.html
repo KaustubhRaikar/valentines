@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        /* Complete CSS - No external dependencies */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: #ffe6ea;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            cursor: default;
+        }
+        
+        /* Container */
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.3);
+            text-align: center;
+            position: relative;
+            border: 3px solid #ffccd5;
+        }
+        
+        /* Pages */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Typography */
+        h1 {
+            color: #ff4d6d;
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            color: #ff758f;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+        
+        /* Images - Using base64 encoded */
+        .valentine-img {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 8px solid #ffccd5;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        /* Buttons Container - CRITICAL for fleeing */
+        .buttons-container {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            margin-top: 40px;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 160px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            position: absolute;
+            z-index: 10;
+        }
+        
+        .btn-yes {
+            background: #ff4d6d;
+            color: white;
+            left: 25%;
+            transform: translateX(-50%);
+        }
+        
+        .btn-yes:hover {
+            background: #ff3355;
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .btn-no {
+            background: #ffccd5;
+            color: #ff4d6d;
+            left: 75%;
+            transform: translateX(-50%);
+            /* This is the fleeing button */
+            transition: left 0.3s ease, top 0.3s ease !important;
+        }
+        
+        .btn-no:hover {
+            background: #ffb3c1;
+        }
+        
+        /* Celebration Page */
+        .message {
+            font-size: 1.8rem;
+            color: #ff4d6d;
+            margin: 30px 0;
+            line-height: 1.6;
+        }
+        
+        .heart-icon {
+            color: #ff4d6d;
+            font-size: 3rem;
+            margin: 20px;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Falling Hearts */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            opacity: 0;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .valentine-img {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .btn {
+                padding: 14px 30px;
+                font-size: 1.2rem;
+                min-width: 140px;
+            }
+            
+            .buttons-container {
+                height: 120px;
+            }
+            
+            .btn-yes {
+                left: 50%;
+                top: 10px;
+            }
+            
+            .btn-no {
+                left: 50%;
+                top: 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1.1rem;
+                min-width: 130px;
+            }
+        }
+        
+        /* Status indicator */
+        .status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.0);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status indicator -->
+   
+    <div class="status" id="status">Loading...</div>
+    <!-- Falling hearts -->
+    <div class="hearts-container" id="heartsContainer"></div>
+    
+    <!-- Main container -->
+    <div class="container">
+        <!-- Page 1: Question -->
+        <div class="page active" id="page1">
+            <h1>Will You Be My Valentine?</h1>
+            <img src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-4.0.3&auto=format&fit=crop&w=687&q=80" alt="Valentine's Day" class="valentine-img" id="valentineImage">
+            
+            <div class="buttons-container" id="buttonsContainer">
+                <button class="btn btn-yes" id="yesBtn">Yes! 💖</button>
+                <button class="btn btn-no" id="noBtn">No 😢</button>
+            </div>
+        </div>
+        
+        <!-- Page 2: Celebration -->
+        <div class="page" id="page2">
+            <h1>You Made My Day! 💝</h1>
+            <p class="subtitle">This calls for a celebration!</p>
+            
+            <!-- Base64 encoded celebration image -->
+            <img src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Red Roses" class="valentine-img">
+            
+            
+            <div class="message">
+                I'm so happy you said YES!<br>
+                You've made this Valentine's Day<br>
+                the most special one ever!
+            </div>
+            
+            <div class="heart-icon">❤️</div>
+            
+            <button class="btn btn-yes" id="backBtn" style="position: relative; left: 0; transform: none;">Ask Again? 💕</button>
+        </div>
+    </div>
+
+    <script>
+        // SIMPLE VERSION - Guaranteed to work everywhere
+        console.log("Valentine App Starting...");
+        
+        // Get DOM elements
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const backBtn = document.getElementById('backBtn');
+        const heartsContainer = document.getElementById('heartsContainer');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        const status = document.getElementById('status');
+        
+        // Show status
+        status.textContent = "App loaded!";
+        
+        // Create hearts animation
+        function createHearts(count) {
+            heartsContainer.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                // Simple falling animation
+                const duration = Math.random() * 3 + 2;
+                heart.style.animation = `fall ${duration}s linear infinite`;
+                
+                // Define fall animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes fall {
+                        0% { transform: translateY(-100px) rotate(0deg); opacity: 0.7; }
+                        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                heartsContainer.appendChild(heart);
+            }
+        }
+        
+        // Make "No" button flee
+        function makeButtonFlee(event) {
+            // Get mouse/touch position
+            let clientX, clientY;
+            
+            if (event.type.includes('mouse')) {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            } else if (event.touches && event.touches[0]) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                return;
+            }
+            
+            // Get button position and size
+            const buttonRect = noBtn.getBoundingClientRect();
+            const containerRect = buttonsContainer.getBoundingClientRect();
+            
+            // Calculate button center
+            const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+            const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+            
+            // Calculate distance from cursor to button
+            const distance = Math.sqrt(
+                Math.pow(clientX - buttonCenterX, 2) + 
+                Math.pow(clientY - buttonCenterY, 2)
+            );
+            
+            // If cursor is close (within 80px), make button flee
+            if (distance < 80) {
+                // Calculate new position (opposite direction)
+                const angle = Math.atan2(
+                    buttonCenterY - clientY,
+                    buttonCenterX - clientX
+                );
+                
+                // Move button 150px away
+                const moveDistance = 150;
+                let newLeft = buttonCenterX + Math.cos(angle) * moveDistance;
+                let newTop = buttonCenterY + Math.sin(angle) * moveDistance;
+                
+                // Convert to container-relative coordinates
+                newLeft -= containerRect.left;
+                newTop -= containerRect.top;
+                
+                // Keep button within container
+                newLeft = Math.max(10, Math.min(newLeft, containerRect.width - buttonRect.width - 10));
+                newTop = Math.max(10, Math.min(newTop, containerRect.height - buttonRect.height - 10));
+                
+                // Apply new position
+                noBtn.style.left = newLeft + 'px';
+                noBtn.style.top = newTop + 'px';
+                
+                // Update status
+                status.textContent = `Button fled! Distance: ${Math.round(distance)}px`;
+                
+                // Change button text sometimes
+                if (Math.random() < 0.3) {
+                    const messages = ['No 😢', 'Try again!', 'Missed me!', 'Not today!', 'Please!',"Say yes!"];
+                    noBtn.textContent = messages[Math.floor(Math.random() * messages.length)];
+                }
+            }
+        }
+        
+        // Go to celebration page
+        function goToCelebration() {
+            page1.classList.remove('active');
+            page2.classList.add('active');
+            createHearts(80);
+            status.textContent = "Celebration time! ❤️";
+            document.title = "Yay! You Said Yes!";
+        }
+        
+        // Go back to question page
+        function goBackToQuestion() {
+            page2.classList.remove('active');
+            page1.classList.add('active');
+            createHearts(15);
+            status.textContent = "Try to click No!";
+            document.title = "Will You Be My Valentine?";
+            
+            // Reset button position
+            noBtn.style.left = '';
+            noBtn.style.top = '';
+            noBtn.textContent = 'No 😢';
+        }
+        
+        // Initialize the app
+        function init() {
+            console.log("Initializing Valentine App...");
+            
+            // Create initial hearts
+            createHearts(15);
+            
+            // Set up event listeners - SIMPLE VERSION
+            document.addEventListener('mousemove', makeButtonFlee);
+            document.addEventListener('touchmove', makeButtonFlee);
+            
+            // Button clicks
+            yesBtn.addEventListener('click', goToCelebration);
+            backBtn.addEventListener('click', goBackToQuestion);
+            
+            // Make button flee when clicked (for mobile)
+            noBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                makeButtonFlee(e);
+                status.textContent = "Almost got it! Try again!";
+            });
+            
+            // Update status
+            status.textContent = "Move cursor near 'No' button!";
+            
+            // Hide status after 5 seconds
+            setTimeout(() => {
+                status.style.opacity = '0.5';
+            }, 5000);
+            
+            console.log("App initialized successfully!");
+        }
+        
+        // Start the app when page loads
+        window.addEventListener('load', init);
+        
+        // Fallback: If load event already fired
+        if (document.readyState === 'complete') {
+            init();
+        }
+    </script>
+</body>
+</html>
